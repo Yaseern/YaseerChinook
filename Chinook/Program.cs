@@ -1,9 +1,11 @@
 using Chinook;
+using Chinook.Areas;
 using Chinook.Areas.Identity;
 using Chinook.Models;
 using Chinook.Services.Artist;
 using Chinook.Services.Playlist;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Configuration;
 
@@ -20,12 +22,14 @@ builder.Services.AddDbContext<ChinookContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<ChinookUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ChinookContext>();
+    .AddEntityFrameworkStores<ChinookContext>()
+    .AddDefaultTokenProviders();
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<ChinookUser>>();
+builder.Services.AddScoped<ICustomAuthenticationService, CustomAuthenticationProvider>();
 
 builder.Services.AddScoped<IArtistService, ArtistService>();
 builder.Services.AddScoped<IPlaylistService, PlaylistService>();

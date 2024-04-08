@@ -14,6 +14,11 @@ namespace Chinook.Services.Artist
                 .ToListAsync();
         }
 
+        public async Task<Models.Artist> GetArtistById(long artistId)
+        {
+            return await _dbContext.Artists.SingleOrDefaultAsync(a => a.ArtistId == artistId);
+        }
+
         public async Task<List<Album>> GetAlbumsForArtist(int artistId)
         {
             return await _dbContext.Albums
