@@ -43,11 +43,11 @@ else
                     <td>
                         @if (track.IsFavorite)
                         {
-                            <a href="#" class="m-1" title="Unmark as favorite" @onclick="@(() => UnfavoriteTrack(track.TrackId))" @onclick:preventDefault><i class="bi bi-star-fill"></i></a>
+                            <a href="#" class="m-1" title="Unmark as favorite" @onclick="@(async () => await UnfavoriteTrack(track.TrackId))" @onclick:preventDefault><i class="bi bi-star-fill"></i></a>
                         }
                         else
                         {
-                            <a href="#" class="m-1" title="Mark as favorite" @onclick="@(() => FavoriteTrack(track.TrackId))" @onclick:preventDefault><i class="bi bi-star"></i></a>
+                            <a href="#" class="m-1" title="Mark as favorite" @onclick="@(async () => await FavoriteTrack(track.TrackId))" @onclick:preventDefault><i class="bi bi-star"></i></a>
                         }
                         <a href="#" class="m-1" title="Add to playlist" @onclick="@(() => OpenPlaylistDialog(track.TrackId))" @onclick:preventDefault><i class="bi bi-file-earmark-plus"></i></a>
                     </td>
@@ -148,12 +148,12 @@ else
         {
             var id = await PlaylistService.SaveNewPlaylist(NewPlaylistValue);
             Playlists.Add(new ClientModels.Playlist
-            {
-                Name = NewPlaylistValue,
-                PlaylistId = id
-            });
+                {
+                    Name = NewPlaylistValue,
+                    PlaylistId = id
+                });
         }
-       
+
         InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} added to playlist {NewPlaylistValue ?? SelectedPlaylistOption}.";
         PlaylistDialog.Close();
     }
