@@ -1,6 +1,5 @@
 ﻿using Chinook.Areas;
 using Chinook.Helpers;
-using Chinook.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -69,13 +68,12 @@ namespace Chinook.Services.Playlist
             .FirstOrDefaultAsync();
         }
 
-        public async Task FavoriteTrack()
+        public async Task FavoriteTrack(long trackId)
         {
-            var currentUserId = await GetUserId();
             var favoritePlaylist = await _dbContext.Playlists.FirstOrDefaultAsync(p => p.Name == Constants.DefaultFavoriteName);
 
             if(favoritePlaylist == null) {
-                var lastId = await _dbContext.Playlists.MaxAsync(p => p.PlaylistId);
+                var lastId = await GetLatestPaylistId();
                 favoritePlaylist = new Models.Playlist
                 {
                     PlaylistId = lastId + 1,
@@ -85,25 +83,23 @@ namespace Chinook.Services.Playlist
                 await _dbContext.SaveChangesAsync();
             }
 
-            await _dbContext.UserPlaylists.AddAsync(new UserPlaylist()
+            await _dbContext.PlaylistTracks.AddAsync(new Models.PlaylistTrack()
             {
                 PlaylistId = favoritePlaylist.PlaylistId,
-                UserId = currentUserId
+                TrackId = trackId
             });
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task UnFavoriteTrack()
+        public async Task UnFavoriteTrack(long trackId)
         {
-            var currentUserId = await GetUserId();
             var favoritePlaylist = await _dbContext.Playlists.FirstOrDefaultAsync(p => p.Name == Constants.DefaultFavoriteName);
 
-            _dbContext.UserPlaylists.Remove(new UserPlaylist()
+            _dbContext.PlaylistTracks.Remove(new Models.PlaylistTrack()
             {
                 PlaylistId = favoritePlaylist.PlaylistId,
-                UserId = currentUserId
+                TrackId = trackId
             });
-
             await _dbContext.SaveChangesAsync();
         }
 
@@ -121,6 +117,11 @@ namespace Chinook.Services.Playlist
                     p.UserPlaylists.Any(up => up.UserId == currentUserId && up.Playlist.Name == Constants.DefaultFavoriteName)).Any()
              })
              .ToListAsync();
+        }
+
+        private async Task<long> GetLatestPaylistId()
+        {
+            return await _dbContext.Playlists.MaxAsync(p => p.PlaylistId);
         }
     }
 }
