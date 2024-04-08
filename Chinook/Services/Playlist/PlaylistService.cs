@@ -23,8 +23,28 @@ namespace Chinook.Services.Playlist
         {
             return await _dbContext.Playlists.Select(p => new ClientModels.Playlist()
             {
-                Name = p.Name
+                Name = p.Name,
+                PlaylistId = p.PlaylistId
             }).ToListAsync();
+        }
+
+        public async Task<long> SaveNewPlaylist(string name)
+        {
+            var isExists = await _dbContext.Playlists.AnyAsync(p => p.Name == name);
+            if(isExists)
+            {
+                throw new ArgumentException(Constants.PlaylistDuplicatedMessage(name));
+            }
+
+            var lastId = await _dbContext.Playlists.MaxAsync(p => p.PlaylistId);
+            var newPlaylist = new Models.Playlist
+            {
+                PlaylistId = lastId + 1,
+                Name = name
+            };
+            await _dbContext.Playlists.AddAsync(newPlaylist);
+            await _dbContext.SaveChangesAsync();
+            return newPlaylist.PlaylistId;
         }
 
         public async Task<ClientModels.Playlist> GetPlaylistById(long playlistId)
@@ -57,9 +77,10 @@ namespace Chinook.Services.Playlist
             var favoritePlaylist = await _dbContext.Playlists.FirstOrDefaultAsync(p => p.Name == Constants.DefaultFavoriteName);
 
             if(favoritePlaylist == null) {
+                var lastId = await _dbContext.Playlists.MaxAsync(p => p.PlaylistId);
                 favoritePlaylist = new Models.Playlist
                 {
-                    PlaylistId = 100,
+                    PlaylistId = lastId + 1,
                     Name = Constants.DefaultFavoriteName,
                 };
                 await _dbContext.Playlists.AddAsync(favoritePlaylist);

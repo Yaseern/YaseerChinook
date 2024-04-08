@@ -1,6 +1,7 @@
 ﻿@page "/artist/{ArtistId:long}"
 @attribute [Authorize]
 
+@using Chinook.Helpers
 @using Chinook.Models
 @using Chinook.ClientModels
 @using Chinook.Services.Artist
@@ -68,16 +69,16 @@ else
 
         <div class="mb-2">
             <label for="ExistingPlaylist">Add to existing playlist</label>
-            <select class="form-control" id="ExistingPlaylist">
+            <select class="form-control" id="ExistingPlaylist" asp-for="SelectedPlaylistOption">
                 @foreach (var playlist in Playlists)
                 {
-                    <option>@playlist.Name</option>
+                    <option value="@playlist.Name">@playlist.Name</option>
                 }
             </select>
         </div>
         <div class="mb-2">
             <label for="NewPlaylist">Create new playlist</label>
-            <input type="text" id="NewPlaylist" class="form-control" placeholder="Name for the new playlist">
+            <input type="text" id="NewPlaylist" @bind-value="NewPlaylistValue" class="form-control" placeholder="Name for the new playlist">
         </div>
     </Body>
     <Footer>
@@ -92,6 +93,8 @@ else
     private Modal PlaylistDialog { get; set; }
 
     private Artist Artist;
+    private string NewPlaylistValue { get; set; }
+    private string SelectedPlaylistOption { get; set; }
     private List<ClientModels.Playlist> Playlists;
     private List<PlaylistTrack> Tracks;
     private PlaylistTrack SelectedTrack;
@@ -131,17 +134,33 @@ else
         PlaylistDialog.Open();
     }
 
-    private void AddTrackToPlaylist()
+    private async Task AddTrackToPlaylist()
     {
-        // TODO
-
         CloseInfoMessage();
-        InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} added to playlist {{playlist name}}.";
+
+        if (Playlists.Any(p => p.Name == NewPlaylistValue))
+        {
+            InfoMessage = Constants.PlaylistDuplicatedMessage(NewPlaylistValue);
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(NewPlaylistValue))
+        {
+            var id = await PlaylistService.SaveNewPlaylist(NewPlaylistValue);
+            Playlists.Add(new ClientModels.Playlist
+            {
+                Name = NewPlaylistValue,
+                PlaylistId = id
+            });
+        }
+       
+        InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} added to playlist {NewPlaylistValue ?? SelectedPlaylistOption}.";
         PlaylistDialog.Close();
     }
 
     private void CloseInfoMessage()
     {
         InfoMessage = "";
+        NewPlaylistValue = "";
     }
 }
