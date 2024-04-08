@@ -79,6 +79,7 @@ else
         <div class="mb-2">
             <label for="NewPlaylist">Create new playlist</label>
             <input type="text" id="NewPlaylist" @bind-value="NewPlaylistValue" class="form-control" placeholder="Name for the new playlist">
+            <button class="btn btn-success mt-2" @onclick="CreateNewPlaylist">Create Playlist</button>
         </div>
     </Body>
     <Footer>
@@ -93,10 +94,11 @@ else
     private Modal PlaylistDialog { get; set; }
 
     private Artist Artist;
-    private string NewPlaylistValue { get; set; }
-    private string SelectedPlaylistOption { get; set; }
     private List<ClientModels.Playlist> Playlists;
     private List<ClientModels.PlaylistTrack> Tracks;
+
+    private string NewPlaylistValue { get; set; }
+    private string SelectedPlaylistOption { get; set; }    
     private ClientModels.PlaylistTrack SelectedTrack;
     private string InfoMessage;
 
@@ -111,7 +113,7 @@ else
 
     private async Task FavoriteTrack(long trackId)
     {
-        var track = Tracks.FirstOrDefault(t => t.TrackId == trackId);
+        var track = GetTrackMap(trackId);
         await PlaylistService.FavoriteTrack(trackId);
         track.IsFavorite = true;
 
@@ -120,7 +122,7 @@ else
 
     private async Task UnfavoriteTrack(long trackId)
     {
-        var track = Tracks.FirstOrDefault(t => t.TrackId == trackId);
+        var track = GetTrackMap(trackId); 
         await PlaylistService.UnFavoriteTrack(trackId);
         track.IsFavorite = false;
 
@@ -130,17 +132,16 @@ else
     private void OpenPlaylistDialog(long trackId)
     {
         CloseInfoMessage();
-        SelectedTrack = Tracks.FirstOrDefault(t => t.TrackId == trackId);
+        SelectedTrack = GetTrackMap(trackId);
         PlaylistDialog.Open();
     }
 
-    private async Task AddTrackToPlaylist()
+    private async Task CreateNewPlaylist()
     {
-        CloseInfoMessage();
-
         if (Playlists.Any(p => p.Name == NewPlaylistValue))
         {
             InfoMessage = Constants.PlaylistDuplicatedMessage(NewPlaylistValue);
+            PlaylistDialog.Close();
             return;
         }
 
@@ -152,7 +153,13 @@ else
                     Name = NewPlaylistValue,
                     PlaylistId = id
                 });
+            InfoMessage = $"Playlist {NewPlaylistValue} is created";
+            PlaylistDialog.Close();
         }
+    }
+
+    private void AddTrackToPlaylist()
+    {       
 
         InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} added to playlist {NewPlaylistValue ?? SelectedPlaylistOption}.";
         PlaylistDialog.Close();
@@ -162,5 +169,10 @@ else
     {
         InfoMessage = "";
         NewPlaylistValue = "";
+    }
+
+    private ClientModels.PlaylistTrack GetTrackMap(long trackId)
+    {
+        return Tracks.First(t => t.TrackId == trackId);
     }
 }

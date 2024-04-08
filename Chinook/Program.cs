@@ -7,12 +7,10 @@ using Chinook.Services.Playlist;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-//builder.Services.AddDbContextFactory<ChinookContext>(opt => opt.UseSqlite(connectionString));
 
 builder.Services.AddDbContext<ChinookContext>(options =>
 {
