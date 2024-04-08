@@ -19,7 +19,9 @@ namespace Chinook.Services.Playlist
 
         public async Task<List<ClientModels.Playlist>> GetPlaylists()
         {
-            return await _dbContext.Playlists.Select(p => new ClientModels.Playlist()
+            return await _dbContext.Playlists
+                .OrderBy(p => p.Name)
+                .Select(p => new ClientModels.Playlist()
             {
                 Name = p.Name,
                 PlaylistId = p.PlaylistId
