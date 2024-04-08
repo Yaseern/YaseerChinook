@@ -14,6 +14,7 @@
 }
 else
 {
+    <input type="text" id="searchArtist" @bind-value="SearchValue" @bind-value:event="oninput" @onkeyup="FilterArtist" placeholder="Search for artists..">
     <table class="table table-striped table-hover table-sm">
         <thead>
             <tr>
@@ -22,7 +23,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var artist in Artists)
+            @foreach (var artist in FilteredArtists)
             {
                 <tr>
                     <td><a href="Artist/@artist.ArtistId">@artist.Name</a></td>
@@ -34,11 +35,21 @@ else
 }
 
 @code {
+    private List<Artist> FilteredArtists;
+    private string SearchValue { get; set; }
     private List<Artist> Artists;
     [Inject] IArtistService ArtistService { get; set; }
 
     protected override async Task OnInitializedAsync() {
         await InvokeAsync(StateHasChanged);
-        Artists = await ArtistService.GetArtists();
+        Artists = FilteredArtists = await ArtistService.GetArtists();
+    }
+
+    void FilterArtist(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            FilteredArtists = Artists.Where(a => a.Name.ToLower().Contains(SearchValue.ToLower())).ToList();
+        }
     }
 }
