@@ -9,6 +9,6 @@ namespace Chinook.Services.Playlist
         Task<long> SaveNewPlaylist(string name);
         Task FavoriteTrack();
         Task UnFavoriteTrack();
-        Task<List<PlaylistTrack>> GetTracksByArtistId(long artistId);
+        Task<List<ClientModels.PlaylistTrack>> GetTracksByArtistId(long artistId);
     }
 }

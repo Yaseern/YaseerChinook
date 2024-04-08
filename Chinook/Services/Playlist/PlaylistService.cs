@@ -1,8 +1,6 @@
 ﻿using Chinook.Areas;
-using Chinook.ClientModels;
 using Chinook.Helpers;
 using Chinook.Models;
-using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
@@ -87,7 +85,7 @@ namespace Chinook.Services.Playlist
                 await _dbContext.SaveChangesAsync();
             }
 
-            await _dbContext.UserPlaylists.AddAsync(new Models.UserPlaylist()
+            await _dbContext.UserPlaylists.AddAsync(new UserPlaylist()
             {
                 PlaylistId = favoritePlaylist.PlaylistId,
                 UserId = currentUserId
@@ -100,7 +98,7 @@ namespace Chinook.Services.Playlist
             var currentUserId = await GetUserId();
             var favoritePlaylist = await _dbContext.Playlists.FirstOrDefaultAsync(p => p.Name == Constants.DefaultFavoriteName);
 
-            _dbContext.UserPlaylists.Remove(new Models.UserPlaylist()
+            _dbContext.UserPlaylists.Remove(new UserPlaylist()
             {
                 PlaylistId = favoritePlaylist.PlaylistId,
                 UserId = currentUserId
@@ -109,12 +107,12 @@ namespace Chinook.Services.Playlist
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<List<PlaylistTrack>> GetTracksByArtistId(long artistId)
+        public async Task<List<ClientModels.PlaylistTrack>> GetTracksByArtistId(long artistId)
         {
             var currentUserId = await GetUserId();
             return await _dbContext.Tracks.Where(a => a.Album.ArtistId == artistId)
              .Include(a => a.Album)
-             .Select(t => new PlaylistTrack()
+             .Select(t => new ClientModels.PlaylistTrack()
              {
                  AlbumTitle = (t.Album == null ? "-" : t.Album.Title),
                  TrackId = t.TrackId,
