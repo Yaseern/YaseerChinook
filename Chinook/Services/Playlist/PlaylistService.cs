@@ -110,8 +110,7 @@ namespace Chinook.Services.Playlist
                  AlbumTitle = (t.Album == null ? "-" : t.Album.Title),
                  TrackId = t.TrackId,
                  TrackName = t.Name,
-                 IsFavorite = t.Playlists.Any(p =>
-                    p.PlaylistTracks.Any(up => up.PlaylistId == favoritePlaylist.PlaylistId))
+                 IsFavorite = t.PlaylistTracks.Any(up => up.PlaylistId == favoritePlaylist.PlaylistId)
              })
              .ToListAsync();
         }

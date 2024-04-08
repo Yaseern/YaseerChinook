@@ -115,7 +115,7 @@ else
         await PlaylistService.FavoriteTrack(trackId);
         track.IsFavorite = true;
 
-        InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} added to playlist Favorites.";
+        InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} added to playlist {Constants.DefaultFavoriteName}.";
     }
 
     private async Task UnfavoriteTrack(long trackId)
@@ -124,7 +124,7 @@ else
         await PlaylistService.UnFavoriteTrack(trackId);
         track.IsFavorite = false;
 
-        InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} removed from playlist Favorites.";
+        InfoMessage = $"Track {track.ArtistName} - {track.AlbumTitle} - {track.TrackName} removed from playlist {Constants.DefaultFavoriteName}.";
     }
 
     private void OpenPlaylistDialog(long trackId)
